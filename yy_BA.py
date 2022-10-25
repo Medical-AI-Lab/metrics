@@ -41,9 +41,9 @@ def yyplot(s_real, s_fake, color, markersize, ci, boot, randomline, min_0):
     ax.spines['top'].set_visible(False)
     return fig 
 
-def fetchmaxdiff(df, k, v):
+def fetchmaxdiff(df, true, pred):
     maxvalue = 0
-    s_diff = abs(df[k]-df[v])
+    s_diff = abs(df[true]-df[pred])
     max_diff = s_diff.max()
     if max_diff >= maxvalue:
         maxvalue = max_diff
