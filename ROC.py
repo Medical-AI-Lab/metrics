@@ -10,11 +10,12 @@ def _argparse():
     parser = argparse.ArgumentParser(description='Choose csv and define lists to analyze')
     parser.add_argument('--csvpath', type=str, default='./docs/source_analysis_cleansed.csv', help='CSVpath to analyze')
     parser.add_argument('--savedir', type=str, default='./outputs/metrics', help='Save dir')
-    parser.add_argument('--target', nargs='*', required=True, help='Specify target columns. ex. --target AS MR')
+    parser.add_argument('--target', nargs='*', required=True, help='Target columns. ex) --target AS MR')
     parser.add_argument('--pred', type=str, default='pred_label_', help='Preffix for predicted target')
     parser.add_argument('--true', type=str, default='label_', help='Preffix for label target')
     parser.add_argument('--color', type=str, default='crimson', choices=['crimson', 'darkblue', 'darkgreen', 'goldenrod'], help='Color for ROC')
     parser.add_argument('--boot', type=int, default=3, help='Bootstrap number')
+    parser.add_argument('--ci_cutoff', type=str, default='95', choices=['95', '99'], help='Bootstrap number')
     args = parser.parse_args()
     return args
 
@@ -39,7 +40,7 @@ def roc_auc(s_y, s_x, color):
     plt.plot(fpr, tpr, marker=None, color=color, lw=0.75)
     return fig
 
-def roc_auc_with_CI(s_y, s_x, color, boot):
+def roc_auc_with_CI(s_y, s_x, color, boot, ci_cutoff):
     '''Make an ROC with CI using the bootstrapping.
     Returned values are auc and a figure of the roc with 95%CI.'''
 
@@ -66,11 +67,16 @@ def roc_auc_with_CI(s_y, s_x, color, boot):
     mean_tpr[-1] = 1.0
 
     std_tpr = np.std(tprs, axis=0)
-    tprs_upper = np.minimum(mean_tpr + 1.96 * std_tpr, 1)
-    tprs_lower = np.maximum(mean_tpr - 1.96 * std_tpr, 0)
+    if args.ci_cutoff == '95':
+        tprs_upper = np.minimum(mean_tpr + 1.96 * std_tpr, 1)
+        tprs_lower = np.maximum(mean_tpr - 1.96 * std_tpr, 0)
+        auc_conf_interval = np.percentile(aucs,[2.5,97.5])
+    elif args.ci_cutoff == '99':
+        tprs_upper = np.minimum(mean_tpr + 2.575 * std_tpr, 1)
+        tprs_lower = np.maximum(mean_tpr - 2.575 * std_tpr, 0)  
+        auc_conf_interval = np.percentile(aucs,[0.5,99.5])      
     ax.fill_between(mean_fpr, tprs_lower, tprs_upper, color=color, lw=0.25, alpha=0.1, label=False)
 
-    auc_conf_interval = np.percentile(aucs,[2.5,97.5])
     auc_with_ci = f'{auc_type_divide:.2f}({auc_conf_interval[0]:.2f}-{auc_conf_interval[1]:.2f})'
     s_auc = pd.Series([auc_with_ci])
     return fig, s_auc
@@ -87,7 +93,7 @@ def main(args):
                 s_y = df_split[k]
                 s_x = df_split[v]
                 roc_plain = roc_auc(s_y, s_x, args.color)
-                roc_with_ci, s_tmp = roc_auc_with_CI(s_y, s_x, args.color, args.boot)
+                roc_with_ci, s_tmp = roc_auc_with_CI(s_y, s_x, args.color, args.boot, args.ci_cutoff)
                 roc_savedir = os.path.join(args.savedir, 'imgs', institution, split)
                 os.makedirs(roc_savedir, exist_ok=True)
                 roc_plain.savefig(roc_savedir + '/roc_plain_' + k + '.png', transparent=True)
