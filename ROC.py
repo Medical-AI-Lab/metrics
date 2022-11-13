@@ -14,7 +14,7 @@ def _argparse():
     parser.add_argument('--pred', type=str, default='pred_label_', help='Preffix for predicted target')
     parser.add_argument('--true', type=str, default='label_', help='Preffix for label target')
     parser.add_argument('--color', type=str, default='crimson', choices=['crimson', 'darkblue', 'darkgreen', 'goldenrod'], help='Color for ROC')
-    parser.add_argument('--boot', type=int, default=3, help='Bootstrap number')
+    parser.add_argument('--boot', type=int, default=1000, help='Bootstrap number')
     parser.add_argument('--ci_cutoff', type=str, default='95', choices=['95', '99'], help='Bootstrap number')
     args = parser.parse_args()
     return args
