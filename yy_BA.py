@@ -1,13 +1,9 @@
-import math
 import os
 import numpy as np
 import pandas as pd
-import scipy
-import pingouin as pg
 import matplotlib.pyplot as plt
 import seaborn as sns
 import statsmodels.api as sm
-from sklearn import metrics
 
 def _argparse():
     import argparse
@@ -19,19 +15,22 @@ def _argparse():
     parser.add_argument('--true', type=str, default='label_', help='Preffix for label target')
     parser.add_argument('--color', type=str, default='crimson', choices=['crimson', 'darkblue', 'darkgreen', 'goldenrod'], help='Color for figures')
     parser.add_argument('--markersize', type=int, default=1, help='Dots size')
-    parser.add_argument('--diffmax', default=False, type=str, help='Set maximam value as round int')
+    parser.add_argument('--max_in_diff', default=False, type=float, help='Set maximam value as round int')
     parser.add_argument('--ci', type=int, default=None, help='Make CI or not')
     parser.add_argument('--boot', type=int, default=1000, help='Dots size')
     parser.add_argument('--randomline', default=False, help='CI')
-    parser.add_argument('--min_0', default=False, help='Minimum value in the figure.')
+    parser.add_argument('--min_in_yy', type=float, default=False, help='Minimum value in the yy figure.')
+    parser.add_argument('--max_in_yy', type=float, default=False, help='Maximum value in the yy figure.')
 
     args = parser.parse_args()
     return args
 
-def yyplot(s_real, s_fake, color, markersize, ci, boot, randomline, min_0):
+def yyplot(s_real, s_fake, color, markersize, ci, boot, randomline, min_in_yy, max_in_yy):
     fig, ax = plt.subplots(figsize=(9, 9), dpi=300)
     max_ax = np.max([s_real.max(), s_fake.max()])
-    if min_0:
+    if max_in_yy:
+        max_ax = max_in_yy
+    if min_in_yy:
         plt.xlim(0, max_ax)
         plt.ylim(0, max_ax)
     if randomline:
@@ -41,9 +40,9 @@ def yyplot(s_real, s_fake, color, markersize, ci, boot, randomline, min_0):
     ax.spines['top'].set_visible(False)
     return fig 
 
-def fetchmaxdiff(df, true, pred):
+def fetchmaxdiff(df, k, v):
     maxvalue = 0
-    s_diff = abs(df[true]-df[pred])
+    s_diff = abs(df[k]-df[v])
     max_diff = s_diff.max()
     if max_diff >= maxvalue:
         maxvalue = max_diff
@@ -68,7 +67,9 @@ def main(args):
                 df_split = df_institution.query('split == @split')
                 s_y = df_split[k]
                 s_x = df_split[v]
-                yy_img = yyplot(s_y, s_x, args.color, args.markersize, args.ci, args.boot, args.randomline, args.min_0)
+                yy_img = yyplot(s_y, s_x, args.color, args.markersize, args.ci, args.boot, args.randomline, args.min_in_yy, args.max_in_yy)
+                if args.max_in_diff:
+                    maxvalue = args.max_in_diff
                 BA_img = BAplot(s_y, s_x, args.color, args.markersize, maxvalue)
                 img_savedir = os.path.join(args.savedir, 'imgs', institution, split)
                 os.makedirs(img_savedir, exist_ok=True)
