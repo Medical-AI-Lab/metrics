@@ -83,7 +83,7 @@ def roc_auc_with_CI(s_y, s_x, color, boot, ci_cutoff):
 
 def main(args):
     df = pd.read_csv(args.csvpath)
-    s_auc = pd.Series(dtype='object')
+    s_auc = pd.Series(dtype='object', name='auc')
     for institution in df['Institution'].unique():
         df_institution = df.query('Institution == @institution')
         d_target = {args.true + i: args.pred + i for i in args.target}
