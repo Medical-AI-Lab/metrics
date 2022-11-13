@@ -15,7 +15,7 @@ def _argparse():
     parser.add_argument('--true', type=str, default='label_', help='Preffix for label target')
     parser.add_argument('--color', type=str, default='crimson', choices=['crimson', 'darkblue', 'darkgreen', 'goldenrod'], help='Color for figures')
     parser.add_argument('--markersize', type=int, default=1, help='Dots size')
-    parser.add_argument('--max_in_diff', default=False, type=float, help='Set maximam value as round int')
+    parser.add_argument('--max_in_diff', default=False, type=float, help='Set maximam value in the diff figure')
     parser.add_argument('--ci', type=int, default=None, help='Make CI or not')
     parser.add_argument('--boot', type=int, default=1000, help='Dots size')
     parser.add_argument('--randomline', default=False, help='CI')
