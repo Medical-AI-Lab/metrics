@@ -98,7 +98,8 @@ def main(args):
                 os.makedirs(roc_savedir, exist_ok=True)
                 roc_plain.savefig(roc_savedir + '/roc_plain_' + k + '.png', transparent=True)
                 roc_with_ci.savefig(roc_savedir + '/roc_with_ci_' + k + '.png', transparent=True)
-                s_tmp.index = ['roc_' + institution + '_' + split + '_' + k]
+                s_tmp.index = ['auc_' + institution + '_' + split + '_' + k]
+                s_tmp.name = 'auc'
                 s_auc = pd.concat([s_auc, s_tmp])      
     return s_auc 
 
