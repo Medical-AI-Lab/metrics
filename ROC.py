@@ -67,11 +67,11 @@ def roc_auc_with_CI(s_y, s_x, color, boot, ci_cutoff):
     mean_tpr[-1] = 1.0
 
     std_tpr = np.std(tprs, axis=0)
-    if args.ci_cutoff == '95':
+    if ci_cutoff == '95':
         tprs_upper = np.minimum(mean_tpr + 1.96 * std_tpr, 1)
         tprs_lower = np.maximum(mean_tpr - 1.96 * std_tpr, 0)
         auc_conf_interval = np.percentile(aucs,[2.5,97.5])
-    elif args.ci_cutoff == '99':
+    elif ci_cutoff == '99':
         tprs_upper = np.minimum(mean_tpr + 2.575 * std_tpr, 1)
         tprs_lower = np.maximum(mean_tpr - 2.575 * std_tpr, 0)  
         auc_conf_interval = np.percentile(aucs,[0.5,99.5])      
@@ -100,8 +100,9 @@ def main(args):
                 roc_with_ci.savefig(roc_savedir + '/roc_with_ci_' + k + '.png', transparent=True)
                 s_tmp.index = ['roc_' + institution + '_' + split + '_' + k]
                 s_auc = pd.concat([s_auc, s_tmp])      
-    s_auc.to_csv(args.savedir + '/roc.csv')  
+    return s_auc 
 
 if __name__ == '__main__':
     args = _argparse()
-    main(args)
+    s_auc = main(args)
+    s_auc.to_csv(args.savedir + '/auc.csv')  
