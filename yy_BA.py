@@ -31,8 +31,8 @@ def yyplot(s_real, s_fake, color, markersize, ci, boot, randomline, min_in_yy, m
     if max_in_yy:
         max_ax = max_in_yy
     if min_in_yy:
-        plt.xlim(0, max_ax)
-        plt.ylim(0, max_ax)
+        plt.xlim(min_in_yy, max_ax)
+        plt.ylim(min_in_yy, max_ax)
     if randomline:
         ax.plot([0, max_ax], [0, max_ax], linestyle="--", lw=1, color="gray", alpha=0.8)
     sns.regplot(x=s_real, y=s_fake, ci=ci, n_boot=boot, truncate=False, scatter_kws={"marker" :".", "color": color, "s":markersize}, line_kws={"color": color,"linewidth": 1.5})  
